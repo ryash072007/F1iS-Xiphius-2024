@@ -17,7 +17,6 @@ coefficients = np.polyfit(x, y, 100)
 polynomial = np.poly1d(coefficients)
 
 def calculate_acceleration(thrust, drag, weight, friction):
-    # Assuming thrust, drag, and weight are functions of time
     net_force = thrust - drag - friction
     acceleration = net_force / weight
     return acceleration
@@ -36,9 +35,11 @@ def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_s
     # Initial conditions
     initial_velocity = 0
     initial_distance = 0
+    initial_acceleration = 0
 
     velocities = [initial_velocity]
     distances = [initial_distance]
+    accelerations = [initial_acceleration]
 
     for t in time_points[:-1]:
         thrust = thrust_curve(t)
@@ -51,34 +52,53 @@ def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_s
 
         velocities.append(velocity)
         distances.append(distance)
+        accelerations.append(acceleration)
+        
+        if distance >= 20:
+            print("Distance has exceeded 20 meters at time: " + str(t) + " seconds")
+            break
+        
 
-    return time_points, distances, velocities
+    return time_points, distances, velocities, accelerations
 
 def example_friction_curve(t, total_force):
-    friction = 1.73 * car_weight * 9.81
-    return friction
+    friction = cof * car_weight * 9.81
+    
+    if total_force < 0:
+        # print(f"At time {t}, friction is {friction}")
+        return friction
+    elif total_force < friction:
+        # print(f"At time {t}, friction is {total_force}")
+        return total_force
+    elif total_force > friction:
+        # print(f"At time {t}, friction is {friction}")
+        return friction
 
 def example_thrust_curve(t):
     return polynomial(t) if t < 0.5 else 0
 
 def example_drag_curve(v):
-    return 0.5 * 1.225 * v**2 * 0.05619 * 0.02531
+    return 0.5 * 1.225 * v**2 * area * dcof
 
-car_weight = 0.05  # Placeholder value in kilograms
 
 # Simulation parameters
 time_step = 0.001  # Time step for simulation
 total_time = 1.5  # Total simulation time
+car_weight = 0.06  # Placeholder value in kilograms
+cof = 0.5
+area = 0.06469
+dcof = 0.04237
 
 # Run simulation
-time_points, distances, velocities = simulate_track_time(
+time_points, distances, velocities, accelerations = simulate_track_time(
     example_thrust_curve, example_drag_curve, car_weight, example_friction_curve, time_step, total_time
 )
 
 # Plot results
-plt.plot(time_points, distances, label='Distance')
-plt.plot(time_points, velocities, label='Velocity')
+plt.plot(time_points[:len(distances)], distances, label='Distance')
+plt.plot(time_points[:len(velocities)], velocities, label='Velocity')
+plt.plot(time_points[:len(accelerations)], accelerations, label='Acceleration')
 plt.xlabel('Time (s)')
-plt.ylabel('Distance (m) / Velocity (m/s)')
+plt.ylabel('Distance (m) / Velocity (m/s) / Acceleration (m/s^2)')
 plt.legend()
 plt.show()
