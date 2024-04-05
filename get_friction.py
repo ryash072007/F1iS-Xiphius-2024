@@ -63,7 +63,7 @@ def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_s
 
     return time_points, distances, velocities, accelerations, time
 
-def example_friction_curve(t, total_force):
+def friction_curve(t, total_force):
     friction = cof * car_weight * 9.81
     if total_force < 0:
         # print(f"At time {t}, friction is {friction}")
@@ -75,24 +75,30 @@ def example_friction_curve(t, total_force):
         # print(f"At time {t}, friction is {friction}")
         return friction
 
-def example_thrust_curve(t):
+def thrust_curve(t):
     return polynomial(t) if t < 0.5 else 0
 
-def example_drag_curve(v):
+def drag_curve(v):
     return 0.5 * 1.225 * v**2 * area * dcof
 
 
 # Simulation parameters
+
+ideal_car_weight = 0.05
+co2_weight = 0.08
+co2_cartridge_weight = 0.024
+
+
 time_step = 0.001  # Time step for simulation
 total_time = 3  # Total simulation time
-car_weight = 0.06  # Placeholder value in kilograms
-cof = 1.5  # Coefficient of friction
+car_weight = ideal_car_weight + co2_weight + co2_cartridge_weight  # Ideal Weight
+cof = 0.492  # Coefficient of friction
 area = 0.06469
 dcof = 0.04237
 
 
 time_points, distances, velocities, accelerations, time_taken = simulate_track_time(
-        example_thrust_curve, example_drag_curve, car_weight, example_friction_curve, time_step, total_time
+        thrust_curve, drag_curve, car_weight, friction_curve, time_step, total_time
     )
 
 
