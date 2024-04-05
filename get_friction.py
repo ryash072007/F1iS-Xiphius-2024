@@ -92,8 +92,8 @@ time_step = 0.01  # Time step for simulation
 total_time = 2  # Total simulation time
 car_weight = ideal_car_weight + co2_weight + co2_cartridge_weight  # Ideal Weight
 cof = 0.492  # Coefficient of friction
-area = 0.06469
-dcof = 0.04237
+area = 0.0676844
+dcof = 0.02625
 
 
 time_points, distances, velocities, accelerations, time_taken = simulate_track_time(
