@@ -26,7 +26,7 @@ def calculate_velocity(acceleration, initial_velocity, time_step):
 
 def calculate_distance(velocity, initial_distance, time_step):
     distance = initial_distance + velocity * time_step
-    return distance
+    return distance if distance > 0 else 0
 
 def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_step, total_time):
     time_points = np.arange(0, total_time, time_step)
@@ -55,7 +55,6 @@ def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_s
         accelerations.append(acceleration)
         
         if distance >= 20:
-            print(t)
             time = t
             print("Distance has exceeded 20 meters at time: " + str(t) + " seconds")
             break
@@ -85,12 +84,12 @@ def drag_curve(v):
 # Simulation parameters
 
 ideal_car_weight = 0.05
-co2_weight = 0.08
+co2_weight = 0.008
 co2_cartridge_weight = 0.024
 
 
-time_step = 0.001  # Time step for simulation
-total_time = 3  # Total simulation time
+time_step = 0.01  # Time step for simulation
+total_time = 2  # Total simulation time
 car_weight = ideal_car_weight + co2_weight + co2_cartridge_weight  # Ideal Weight
 cof = 0.492  # Coefficient of friction
 area = 0.06469
@@ -100,7 +99,6 @@ dcof = 0.04237
 time_points, distances, velocities, accelerations, time_taken = simulate_track_time(
         thrust_curve, drag_curve, car_weight, friction_curve, time_step, total_time
     )
-
 
 plt.plot(time_points[:len(distances)], distances, label='Distance')
 plt.plot(time_points[:len(velocities)], velocities, label='Velocity')
