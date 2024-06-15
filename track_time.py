@@ -15,13 +15,6 @@ y = np.array([p[1] for p in points])
 coefficients = np.polyfit(x, y, 100)
 polynomial = np.poly1d(coefficients)
 
-area = sum(0.001 * polynomial(i/1000) for i in range(0, int(0.5 * 1000)))   
-
-print(area)
-weight_lost_per_unit_area = 0.008 / area
-
-# print(polynomial)
-
 def calculate_acceleration(thrust, drag, weight, friction):
     net_force = thrust - drag - friction
     acceleration = net_force / weight
@@ -36,10 +29,8 @@ def calculate_distance(velocity, initial_distance, time_step):
     return distance if distance > 0 else 0
 
 def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_step, total_time):
-    # time_points = np.arange(0, total_time, time_step)
+    time_points = np.arange(0, total_time, time_step)
 
-    time_points = np.array([i/1000 for i in range(0, total_time * 1000)])
-    
     initial_velocity = 0
     initial_distance = 0
     initial_acceleration = 0
@@ -54,11 +45,7 @@ def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_s
         thrust = thrust_curve(t)
         drag = drag_curve(velocities[-1])
         friction = friction_curve(t, thrust - drag)
-        
-        weight_lost = thrust * t * weight_lost_per_unit_area
-        weight -= weight_lost
-        # print(weight)
-        
+
         acceleration = calculate_acceleration(thrust, drag, weight, friction)
         velocity = calculate_velocity(acceleration, velocities[-1], time_step)
         distance = calculate_distance(velocity, distances[-1], time_step)
@@ -69,7 +56,10 @@ def simulate_track_time(thrust_curve, drag_curve, weight, friction_curve, time_s
         
         if distance >= 20:
             time = t
-            print("Distance has exceeded 20 meters at time: " + str(t) + " seconds")
+            print(f"Distance has exceeded 20 meters at time: {t} seconds")
+            print(f"Max velocity is {max(velocities)} at time {velocities.index(max(velocities)) * time_step}s")
+            print(f"Average velocity is {distance / t}")
+            print(f"Max acceleration is {max(accelerations)} at time {accelerations.index(max(accelerations)) * time_step}s")
             break
         
 
@@ -101,12 +91,12 @@ co2_weight = 0.008
 co2_cartridge_weight = 0.024
 
 
-time_step = 0.001  # Time step for simulation
+time_step = 0.01  # Time step for simulation
 total_time = 2  # Total simulation time
 car_weight = ideal_car_weight + co2_weight + co2_cartridge_weight  # Ideal Weight
 cof = 0.492  # Coefficient of friction
-area = 0.0676844
-dcof = 0.02625
+area = 0.0676844 # Area of car in square meters
+dcof = 0.02625 # Drag coefficient of car
 
 
 time_points, distances, velocities, accelerations, time_taken = simulate_track_time(
